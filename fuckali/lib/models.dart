@@ -8,7 +8,11 @@ class Section {
   num updateTime;
   int imageCount;
 
-  Section(){
+  Section();
+  
+  void showInfo(){
+    print("section: sid = ${sid} , content = ${content} , link=${link}, "+
+    "refer = ${refer} , image = ${image} , updatime = ${content} , imageCount = ${imageCount}");
   }
 
   static Section fromJson(Map<String,dynamic> jsonMap){
@@ -16,8 +20,15 @@ class Section {
     section.sid = jsonMap['sid'];
     section.content = jsonMap['content'];
     section.link = jsonMap['link'];
+    section.refer = jsonMap['refer'];
+    section.image = jsonMap['image'];
+    section.updateTime = jsonMap['updateTime'];
+    section.imageCount = jsonMap['imageCount'];
+
     return section;
   }
+
+
 }//class
 
 

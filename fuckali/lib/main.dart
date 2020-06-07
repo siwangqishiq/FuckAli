@@ -1,18 +1,17 @@
+import 'package:FuckAli/HttpClient.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'models.dart';
+import 'dart:convert';
 import 'widget/CommonWidget.dart';
 
-void main() {
-  runApp(MyApp());
-}
+
+void main() =>runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: APP_NAME,
@@ -33,16 +32,40 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
+class ParseSectionList implements ParseDataFunc<List<Section>>{
+  @override
+  List<Section> parseDataFromString(String rawStr) {
+    print("parse json str = " + rawStr);
+    List<Section> result = [];
+
+    List listJson = json.decode(rawStr);
+    listJson.forEach((element) {
+      print("parse ${element}");
+      result.add(Section.fromJson(element));
+    });
+    return result;
+  }
+}
+
 class HomePageState extends State<HomePage> {
-  //List<>
+  List<Section> sectionList = [];//图片族 数据
 
   @override
   void initState() {
     super.initState();
+    _fetchSections();
   }
 
-  void _fetchSections({int pagesize , num updateTime}) async{
+  void _fetchSections({int pagesize = 20 , num updateTime = 0}) async{
+    print("fetch sections ...");
 
+    final HttpResp sectionResp = await HttpClient.getInstance().sendGet(API_GET_SECTIONS, {'pagesize':pagesize,'updateTime':updateTime},ParseSectionList());
+
+    if(sectionResp.isSuccess()){
+      sectionList.clear();
+      sectionList.addAll(sectionResp.data);
+    }
+    
   }
 
   @override
@@ -56,11 +79,11 @@ class HomePageState extends State<HomePage> {
         padding: EdgeInsets.all(8),
         child: RefreshIndicator(
           child: GridView.builder(
-            itemCount: 100,
+            itemCount: sectionList.length ,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              mainAxisSpacing: 20.0,
-              crossAxisSpacing: 10.0,
+              mainAxisSpacing: 0.0,
+              crossAxisSpacing: 0.0,
             ),
             itemBuilder: (BuildContext context, int index){
               return Text("Hello ${index}");

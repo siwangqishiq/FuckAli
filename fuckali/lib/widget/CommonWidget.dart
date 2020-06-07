@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class MeiziImage extends StatelessWidget{
   final String _refer;
   final String _url;
-  Map<String, String> imageHeader = Map<String,String>();
+  final Map<String, String> imageHeader = Map<String,String>();
 
   MeiziImage(this._url , this._refer);
 
