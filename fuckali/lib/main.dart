@@ -34,15 +34,13 @@ class HomePage extends StatefulWidget {
 
 class ParseSectionList implements ParseDataFunc<List<Section>>{
   @override
-  List<Section> parseDataFromString(String rawStr) {
-    print("parse json str = " + rawStr);
+  List<Section> parseDataFromString(dynamic data) {
     List<Section> result = [];
-
-    List listJson = json.decode(rawStr);
-    listJson.forEach((element) {
-      print("parse ${element}");
-      result.add(Section.fromJson(element));
-    });
+    if(data is List){
+      data.forEach((item){
+        result.add(Section.fromJson(item));
+      });
+    }
     return result;
   }
 }
@@ -53,6 +51,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
     _fetchSections();
   }
 
@@ -62,10 +61,14 @@ class HomePageState extends State<HomePage> {
     final HttpResp sectionResp = await HttpClient.getInstance().sendGet(API_GET_SECTIONS, {'pagesize':pagesize,'updateTime':updateTime},ParseSectionList());
 
     if(sectionResp.isSuccess()){
-      sectionList.clear();
-      sectionList.addAll(sectionResp.data);
+      print("request success");
+      setState(() {
+        sectionList.clear();
+        sectionList.addAll(sectionResp.data);
+      });
+    }else{
+      print("request error");
     }
-    
   }
 
   @override

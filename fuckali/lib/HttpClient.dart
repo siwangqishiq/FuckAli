@@ -16,7 +16,7 @@ class HttpResp{
  *  解析 接口返回数据的自定义回调
  */
 abstract class ParseDataFunc<T>{
-  T parseDataFromString(String rawStr);
+  T parseDataFromString(dynamic data);
 }
 
 class HttpClient {
@@ -28,6 +28,8 @@ class HttpClient {
     dio.options.baseUrl = API_HOST;
     dio.options.connectTimeout = 30 * 1000; //
     dio.options.receiveTimeout = 30 * 1000; //
+    dio.options.responseType = ResponseType.json;
+    //dio.options.responseType = ResponseType.plain;
   }
 
   static HttpClient getInstance(){
@@ -50,9 +52,13 @@ class HttpClient {
         String respString = resp.data.toString();
         print(respString);
         
-        print("parse map");
-        Map<String,dynamic> jsonMap = json.decode(respString);
-        print("parse map end");
+        //Map<String,dynamic> jsonMap = json.decode(respString);
+        var jsonMap = resp.data;
+        //print("map data = {${jsonMap['data'].runtimeType}");
+
+        print("code = ${jsonMap['code']}");
+        print("msg = ${jsonMap['msg']}");
+        print("data = ${jsonMap['data']}");
         return await _generatorHttpResp(jsonMap['code'] , jsonMap['msg'] , jsonMap['data'], parseFunc);
       }else{
         //httpResp.code = resp.statusCode;
@@ -67,12 +73,14 @@ class HttpClient {
   /**
    * 解析服务端返回的data  
    */
-  Future<HttpResp> _generatorHttpResp(int code , String msg, String dataStr , ParseDataFunc parseFunc) async{
+  Future<HttpResp> _generatorHttpResp(int code , String msg, dynamic data , ParseDataFunc parseFunc) async{
     HttpResp resp = new HttpResp();
     resp.code = code;
     resp.msg = msg;
     if(parseFunc != null){
-      resp.data = parseFunc.parseDataFromString(dataStr);
+      //print(data.runtimeType);
+      //print("dataStr = ${data}");
+      resp.data = parseFunc.parseDataFromString(data);
     }
     return resp;
   }
