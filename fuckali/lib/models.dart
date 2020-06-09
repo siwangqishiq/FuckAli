@@ -11,8 +11,8 @@ class Section {
   Section();
   
   void showInfo(){
-    print("section: sid = ${sid} , content = ${content} , link=${link}, "+
-    "refer = ${refer} , image = ${image} , updatime = ${content} , imageCount = ${imageCount}");
+    print("section: sid = $sid , content = $content , link=$link, "+
+    "refer = $refer , image = $image , updatime = $content , imageCount = $imageCount");
   }
 
   static Section fromJson(Map<String,dynamic> jsonMap){
@@ -27,8 +27,6 @@ class Section {
 
     return section;
   }
-
-
 }//class
 
 

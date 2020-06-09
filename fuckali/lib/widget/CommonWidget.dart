@@ -12,6 +12,11 @@ class MeiziImage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     imageHeader['Referer'] = _refer;
-    return Image.network(_url,headers:imageHeader);
+    return Image.network(
+      _url,headers:imageHeader , 
+      fit: BoxFit.fitHeight,
+      width: double.infinity,
+      height: double.infinity,
+    );
   }
 }//end class

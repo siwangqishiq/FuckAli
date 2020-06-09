@@ -1,9 +1,8 @@
 import 'package:FuckAli/HttpClient.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'constants.dart';
 import 'models.dart';
-import 'dart:convert';
 import 'widget/CommonWidget.dart';
 
 
@@ -46,29 +45,68 @@ class ParseSectionList implements ParseDataFunc<List<Section>>{
 }
 
 class HomePageState extends State<HomePage> {
+  ScrollController _scrollController;
   List<Section> sectionList = [];//图片族 数据
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    
+    _scrollController = ScrollController();
+    _scrollController.addListener((){
+      //print("pos = ${_scrollController.position.pixels}");
+      //print("max = ${_scrollController.position.maxScrollExtent}");
 
-    _fetchSections();
+      if(isLoading)
+        return;
+
+      if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent){//滑动到底部
+        _loadMore();
+      }
+    });
+
+
+    _fetchSections(false);
   }
 
-  void _fetchSections({int pagesize = 20 , num updateTime = 0}) async{
-    print("fetch sections ...");
+  @override
+  void dispose() {
+    super.dispose();
+    if(_scrollController != null){
+      _scrollController.dispose();
+    }
+  }
 
-    final HttpResp sectionResp = await HttpClient.getInstance().sendGet(API_GET_SECTIONS, {'pagesize':pagesize,'updateTime':updateTime},ParseSectionList());
+  //分页加载更多
+  void _loadMore(){ 
+    print("loadMore...");
+    var lastUpdateTime = _findLastSectionUpdateTime();
+    _fetchSections(true , updateTime: lastUpdateTime);
+  }
+
+  void _fetchSections(bool isAppend , {int pagesize = 20 , num updateTime = 0}) async{
+    if(isLoading)
+      return;
+    
+    isLoading = true;
+    print("fetch sections ... updateTime = $updateTime");
+
+    final HttpResp sectionResp = await HttpClient.getInstance().sendGet(API_GET_SECTIONS, 
+    {'pagesize':pagesize,'updatetime':updateTime},ParseSectionList());
 
     if(sectionResp.isSuccess()){
       print("request success");
       setState(() {
-        sectionList.clear();
+        if(!isAppend){
+          sectionList.clear();
+        }
         sectionList.addAll(sectionResp.data);
       });
     }else{
       print("request error");
     }
+    isLoading = false;
   }
 
   @override
@@ -79,7 +117,7 @@ class HomePageState extends State<HomePage> {
         title: Text(widget.title),
       ),
       body: Container(
-        padding: EdgeInsets.all(8),
+        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
         child: RefreshIndicator(
           child: GridView.builder(
             itemCount: sectionList.length ,
@@ -87,22 +125,66 @@ class HomePageState extends State<HomePage> {
               crossAxisCount: 2,
               mainAxisSpacing: 0.0,
               crossAxisSpacing: 0.0,
+              childAspectRatio: 1/1.5,
             ),
             itemBuilder: (BuildContext context, int index){
-              return Text("Hello ${index}");
-            }
+              return createItemWidget(index, sectionList[index]);
+            },
+            controller: _scrollController,
           ),
           //指示器颜色
-          color: Theme.of(context).primaryColor,
+          // color: Theme.of(context).primaryColor,
           onRefresh: _refreshData
         ),
       )
     );
   }
 
-  Future<List<Map>> _refreshData() async{
-    print("refresh data hahah");
+  Widget createItemWidget(int pos , Section section){
+    //return Text(section.content);
+    return Container(
+      child: Card(
+        margin: EdgeInsets.all(8),
+        elevation: 8.0,
+        semanticContainer: true,
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))
+        ),
+        child: Stack(
+          children: <Widget>[
+            MeiziImage(section.image, section.refer),
+            Align(
+              child: Container(
+                padding: EdgeInsets.all(4),
+                color: Color.fromARGB(100, 0, 0, 0),
+                child: Text(
+                  section.content,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.0,
+                  ),
+                ),
+              ),
+              alignment: Alignment.bottomLeft
+            )
+          ],
+        )
+      ),
+    );
+  }
+
+  Future<void> _refreshData() async{
+    _fetchSections(false, pagesize: 20);
     return null;
+  }
+
+  // 获取图片簇
+  num _findLastSectionUpdateTime(){
+    if(sectionList.length == 0)
+      return 0;
+    
+    return sectionList[sectionList.length - 1].updateTime;
   }
 
 }//end class
