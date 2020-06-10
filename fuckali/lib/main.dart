@@ -1,9 +1,11 @@
 import 'package:FuckAli/HttpClient.dart';
+import 'package:FuckAli/pages/ImagePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'constants.dart';
 import 'models.dart';
 import 'widget/CommonWidget.dart';
+import 'package:flutter/services.dart';
 
 
 void main() =>runApp(MyApp());
@@ -44,7 +46,7 @@ class ParseSectionList implements ParseDataFunc<List<Section>>{
   }
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   ScrollController _scrollController;
   List<Section> sectionList = [];//图片族 数据
   bool isLoading = false;
@@ -54,6 +56,8 @@ class HomePageState extends State<HomePage> {
     super.initState();
     
     _scrollController = ScrollController();
+    WidgetsBinding.instance.addObserver(this);
+
     _scrollController.addListener((){
       //print("pos = ${_scrollController.position.pixels}");
       //print("max = ${_scrollController.position.maxScrollExtent}");
@@ -71,8 +75,15 @@ class HomePageState extends State<HomePage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state){
+    print(state);
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+
     if(_scrollController != null){
       _scrollController.dispose();
     }
@@ -128,7 +139,7 @@ class HomePageState extends State<HomePage> {
               childAspectRatio: 1/1.5,
             ),
             itemBuilder: (BuildContext context, int index){
-              return createItemWidget(index, sectionList[index]);
+              return createItemWidget(context ,index, sectionList[index]);
             },
             controller: _scrollController,
           ),
@@ -140,38 +151,59 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget createItemWidget(int pos , Section section){
+  Widget createItemWidget(BuildContext context ,int pos , Section section){
     //return Text(section.content);
     return Container(
       child: Card(
-        margin: EdgeInsets.all(8),
-        elevation: 8.0,
-        semanticContainer: true,
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0))
-        ),
-        child: Stack(
-          children: <Widget>[
-            MeiziImage(section.image, section.refer),
-            Align(
-              child: Container(
-                padding: EdgeInsets.all(4),
-                color: Color.fromARGB(100, 0, 0, 0),
-                child: Text(
-                  section.content,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15.0,
+          margin: EdgeInsets.all(8),
+          elevation: 8.0,
+          semanticContainer: true,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0))
+          ),
+          child: InkWell(
+            child: Stack (
+              children: <Widget>[
+                MeiziImage(section.image, section.refer),
+                Align(
+                  child: Container(
+                    padding: EdgeInsets.all(4),
+                    color: Color.fromARGB(100, 0, 0, 0),
+                    child: Text(
+                      section.content,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              alignment: Alignment.bottomLeft
-            )
-          ],
-        )
-      ),
+                  alignment: Alignment.bottomLeft
+                )
+              ],
+            ),
+            onTap: (){
+              _onClickSectionCard(context ,section);
+            },
+          )
+        ),
     );
+  }
+
+  //点击卡片
+  void _onClickSectionCard(BuildContext context , Section section) async {
+    if(section == null)
+      return;
+    
+    print("click card sectionId = ${section.sid}");
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ImagePage(section) ,
+      )
+    );
+
+    print("back from ImagePage");
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
   }
 
   Future<void> _refreshData() async{
