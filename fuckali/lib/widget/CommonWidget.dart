@@ -11,9 +11,23 @@ class MeiziImage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+//    return CachedNetworkImage(
+//      width: double.infinity,
+//      height: double.infinity,
+//      imageUrl: this._url,
+//      imageBuilder: (context, imageProvider) => _createImageWidget(),
+//      progressIndicatorBuilder: (context, url, downloadProgress) =>
+//          CircularProgressIndicator(value: downloadProgress.progress),
+//      errorWidget: (context, url, error) => Icon(Icons.error),
+//    );
+    return _createImageWidget();
+  }
+  
+  Widget _createImageWidget(){
     imageHeader['Referer'] = _refer;
+
     return Image.network(
-      _url,headers:imageHeader , 
+      _url,headers:imageHeader ,
       fit: BoxFit.fitHeight,
       width: double.infinity,
       height: double.infinity,

@@ -1,4 +1,3 @@
-// 图片族
 class Section {
   int sid;
   String content;
@@ -9,10 +8,10 @@ class Section {
   int imageCount;
 
   Section();
-  
+
   void showInfo(){
     print("section: sid = $sid , content = $content , link=$link, "+
-    "refer = $refer , image = $image , updatime = $content , imageCount = $imageCount");
+        "refer = $refer , image = $image , updatime = $content , imageCount = $imageCount");
   }
 
   static Section fromJson(Map<String,dynamic> jsonMap){
@@ -28,5 +27,3 @@ class Section {
     return section;
   }
 }//class
-
-

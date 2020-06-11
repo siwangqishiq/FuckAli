@@ -3,7 +3,7 @@ import 'package:FuckAli/pages/ImagePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'constants.dart';
-import 'models.dart';
+import 'model/Section.dart';
 import 'widget/CommonWidget.dart';
 import 'package:flutter/services.dart';
 
@@ -203,7 +203,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
 
     print("back from ImagePage");
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    //SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
   }
 
   Future<void> _refreshData() async{
