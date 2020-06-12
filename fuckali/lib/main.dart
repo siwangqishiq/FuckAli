@@ -128,7 +128,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 //      appBar: AppBar(
 //        title: Text(widget.title),
 //      ),
-        body: Container(
+      body: Container(
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
       child: RefreshIndicator(
           child: CustomScrollView(
@@ -215,10 +215,16 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return null;
   }
 
+
   // 获取图片簇
   num _findLastSectionUpdateTime() {
-    if (sectionList.length == 0) return 0;
+    if (sectionList.length == 0)
+      return 0;
 
     return sectionList[sectionList.length - 1].updateTime;
   }
+
 } //end class
+
+
+

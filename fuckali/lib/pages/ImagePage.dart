@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 import '../model/Section.dart';
 import '../constants.dart';
 
@@ -119,8 +120,9 @@ class ImagePageState extends State<ImagePage> {
   }
 
   Widget _createPageView(BuildContext context){
-    return PageView(
+    return PreloadPageView(
       children: List.generate(imageList.length, (index) => _createImageItem(context , imageList[index])),
+      preloadPagesCount: 5,
       onPageChanged: (index){
         print("index  = $index");
         setState(() {
