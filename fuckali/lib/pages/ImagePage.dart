@@ -39,11 +39,14 @@ class ImagePageState extends State<ImagePage> {
   int currentPage;
   int initPage;
   PreloadPageController _mPageViewController;
+  bool hasFetchData = false;
 
   ImagePageState(Section sec , int init){
     this.section = sec;
     this.currentPage = 0;
     this.initPage = init;
+    _mPageViewController = PreloadPageController();
+    //print("Image Page State construct $initPage");
   }
 
   @override
@@ -52,6 +55,12 @@ class ImagePageState extends State<ImagePage> {
     //SystemChrome.setEnabledSystemUIOverlays([]);
     _fetchImage();
   }
+
+  // @override
+  // void didUpdateWidget(ImagePage oldWidget){
+  //   super.didUpdateWidget(oldWidget);
+  //   print("didUpdateWidget");
+  // }
 
   @override
   void dispose() {
@@ -67,18 +76,9 @@ class ImagePageState extends State<ImagePage> {
       setState(() {
         imageList.clear();
         imageList.addAll(resp.data);
-
-        print("initPageIndex = $initPage");
-        if(_mPageViewController != null){
-          _mPageViewController.dispose();
-        }
         
         currentPage = initPage;
-        _mPageViewController = PreloadPageController(initialPage: initPage);
-
-//        for(ImageItem it  in imageList){
-//          print("${it.url}");
-//        }//end for each
+        _mPageViewController.jumpToPage(initPage);
       });
     }else{
       Navigator.of(context).pop(0);
@@ -133,20 +133,35 @@ class ImagePageState extends State<ImagePage> {
   }
 
   Widget _createPageView(BuildContext context){
-    print("_mPageViewController.initialPage = ${_mPageViewController.initialPage}");
+    //print("_mPageViewController.initialPage = ${_mPageViewController.initialPage}");
 
-    return PreloadPageView(
-      children: List.generate(imageList.length, (index) => _createImageItem(context , imageList[index])),
-      preloadPagesCount: 5,
+    return PreloadPageView.builder(
+      itemBuilder: (context , index){
+        return _createImageItem(context , imageList[index]);
+      },
+      itemCount: imageList.length,
+      scrollDirection: Axis.horizontal,
+      preloadPagesCount: 3,
       onPageChanged: (index){
-        print("index  = $index");
         setState(() {
           currentPage = index;
         });
       },
       controller: _mPageViewController,
-      scrollDirection: Axis.horizontal,
     );
+
+    // return PreloadPageView(
+    //   children: List.generate(imageList.length, (index) => _createImageItem(context , imageList[index])),
+    //   preloadPagesCount: 5,
+    //   onPageChanged: (index){
+    //     //print("index  = $index");
+    //     setState(() {
+    //       currentPage = index;
+    //     });
+    //   },
+    //   controller: _mPageViewController,
+    //   scrollDirection: Axis.horizontal,
+    // );
   }
 
   Widget _createImageItem(BuildContext context , ImageItem item){

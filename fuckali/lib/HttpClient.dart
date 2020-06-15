@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'constants.dart';
-import 'dart:convert';
 
 class HttpResp{
   int code = -1;
@@ -46,11 +45,11 @@ class HttpClient {
     try{
       Response resp;
       resp = await dio.get(apiUrl , queryParameters: params);
-      print("code = ${resp.statusCode}");
+      //print("code = ${resp.statusCode}");
 
       if(resp.statusCode == 200){
-        String respString = resp.data.toString();
-        print(respString);
+        //String respString = resp.data.toString();
+        //print(respString);
         
         //Map<String,dynamic> jsonMap = json.decode(respString);
         var jsonMap = resp.data;

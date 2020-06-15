@@ -99,10 +99,11 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void _fetchSections(bool isAppend,
       {int pagesize = 20, num updateTime = 0}) async {
-    if (isLoading) return;
+    if (isLoading) 
+      return;
 
     isLoading = true;
-    print("fetch sections ... updateTime = $updateTime");
+    //print("fetch sections ... updateTime = $updateTime");
 
     final HttpResp sectionResp = await HttpClient.getInstance().sendGet(
         API_GET_SECTIONS,
@@ -110,7 +111,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ParseSectionList());
 
     if (sectionResp.isSuccess()) {
-      print("request success");
+      //print("request success");
       setState(() {
         if (!isAppend) {
           sectionList.clear();
@@ -118,7 +119,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         sectionList.addAll(sectionResp.data);
       });
     } else {
-      print("request error");
+      //print("request error");
     }
     isLoading = false;
   }
@@ -203,7 +204,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (section == null) 
       return;
 
-    print("click card sectionId = ${section.sid}");
+    //print("click card sectionId = ${section.sid}");
     int initIndex = 0;
     if(sectionLastVisitedIndex[section.sid] != null){
       initIndex = sectionLastVisitedIndex[section.sid];
@@ -214,7 +215,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     ));
 
     sectionLastVisitedIndex[section.sid] = result;
-    print("back from ImagePage ${section.sid} => $result");
+    //print("back from ImagePage ${section.sid} => $result");
     //SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
   }
 
