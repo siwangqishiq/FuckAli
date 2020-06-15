@@ -1,9 +1,7 @@
 import 'package:FuckAli/HttpClient.dart';
 import 'package:FuckAli/model/Image.dart';
-import 'package:FuckAli/widget/CommonWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:preload_page_view/preload_page_view.dart';
@@ -12,11 +10,12 @@ import '../constants.dart';
 
 class ImagePage extends StatefulWidget {
   final Section section;
-  ImagePage(this.section);
+  final int _initPageIndex;
+  ImagePage(this.section , this._initPageIndex);
 
   @override
   State<StatefulWidget> createState() {
-    return ImagePageState(section);
+    return ImagePageState(section , _initPageIndex);
   }
 }//end class
 
@@ -35,11 +34,17 @@ class ParseImageItemFunc implements ParseDataFunc {
 
 class ImagePageState extends State<ImagePage> {
   Section section;
-  PageController _pageController;
 
   List<ImageItem> imageList = [];
-  ImagePageState(this.section);
-  int currentPage = 0;
+  int currentPage;
+  int initPage;
+  PreloadPageController _mPageViewController;
+
+  ImagePageState(Section sec , int init){
+    this.section = sec;
+    this.currentPage = 0;
+    this.initPage = init;
+  }
 
   @override
   void initState() {
@@ -50,8 +55,8 @@ class ImagePageState extends State<ImagePage> {
 
   @override
   void dispose() {
-    if(_pageController != null){
-      _pageController.dispose();
+    if(_mPageViewController != null){
+      _mPageViewController.dispose();
     }
     super.dispose();
   }
@@ -63,12 +68,20 @@ class ImagePageState extends State<ImagePage> {
         imageList.clear();
         imageList.addAll(resp.data);
 
+        print("initPageIndex = $initPage");
+        if(_mPageViewController != null){
+          _mPageViewController.dispose();
+        }
+        
+        currentPage = initPage;
+        _mPageViewController = PreloadPageController(initialPage: initPage);
+
 //        for(ImageItem it  in imageList){
 //          print("${it.url}");
 //        }//end for each
       });
     }else{
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(0);
       Fluttertoast.showToast(msg: "请求失败");
     }
   }
@@ -78,7 +91,7 @@ class ImagePageState extends State<ImagePage> {
     return Scaffold(
       body: InkWell(
         onTap: (){
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(currentPage);
         },
         onLongPress: (){
           print("on long press ");
@@ -120,6 +133,8 @@ class ImagePageState extends State<ImagePage> {
   }
 
   Widget _createPageView(BuildContext context){
+    print("_mPageViewController.initialPage = ${_mPageViewController.initialPage}");
+
     return PreloadPageView(
       children: List.generate(imageList.length, (index) => _createImageItem(context , imageList[index])),
       preloadPagesCount: 5,
@@ -129,6 +144,8 @@ class ImagePageState extends State<ImagePage> {
           currentPage = index;
         });
       },
+      controller: _mPageViewController,
+      scrollDirection: Axis.horizontal,
     );
   }
 

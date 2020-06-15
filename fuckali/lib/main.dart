@@ -50,6 +50,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   ScrollController _scrollController;
   List<Section> sectionList = []; //图片族 数据
   bool isLoading = false;
+  Map<int,int> sectionLastVisitedIndex = {};
 
   @override
   void initState() {
@@ -199,14 +200,21 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   //点击卡片
   void _onClickSectionCard(BuildContext context, Section section) async {
-    if (section == null) return;
+    if (section == null) 
+      return;
 
     print("click card sectionId = ${section.sid}");
-    await Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ImagePage(section),
+    int initIndex = 0;
+    if(sectionLastVisitedIndex[section.sid] != null){
+      initIndex = sectionLastVisitedIndex[section.sid];
+    }
+
+    final result = await Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => ImagePage(section , initIndex),
     ));
 
-    print("back from ImagePage");
+    sectionLastVisitedIndex[section.sid] = result;
+    print("back from ImagePage ${section.sid} => $result");
     //SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
   }
 

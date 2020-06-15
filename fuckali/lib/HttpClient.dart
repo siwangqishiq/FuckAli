@@ -56,9 +56,9 @@ class HttpClient {
         var jsonMap = resp.data;
         //print("map data = {${jsonMap['data'].runtimeType}");
 
-        print("code = ${jsonMap['code']}");
-        print("msg = ${jsonMap['msg']}");
-        print("data = ${jsonMap['data']}");
+        // print("code = ${jsonMap['code']}");
+        // print("msg = ${jsonMap['msg']}");
+        // print("data = ${jsonMap['data']}");
         return await _generatorHttpResp(jsonMap['code'] , jsonMap['msg'] , jsonMap['data'], parseFunc);
       }else{
         //httpResp.code = resp.statusCode;
