@@ -92,7 +92,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   //分页加载更多
   void _loadMore() {
-    print("loadMore...");
+    //print("loadMore...");
     var lastUpdateTime = _findLastSectionUpdateTime();
     _fetchSections(true, updateTime: lastUpdateTime);
   }
@@ -204,7 +204,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (section == null) 
       return;
 
-    //print("click card sectionId = ${section.sid}");
+//    print("click card sectionId = ${section.sid}");
     int initIndex = 0;
     if(sectionLastVisitedIndex[section.sid] != null){
       initIndex = sectionLastVisitedIndex[section.sid];
@@ -215,7 +215,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     ));
 
     sectionLastVisitedIndex[section.sid] = result;
-    //print("back from ImagePage ${section.sid} => $result");
+    print("back from ImagePage ${section.sid} => $result");
     //SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
   }
 

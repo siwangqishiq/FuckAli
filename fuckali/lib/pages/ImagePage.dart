@@ -46,7 +46,6 @@ class ImagePageState extends State<ImagePage> {
     this.currentPage = 0;
     this.initPage = init;
     _mPageViewController = PreloadPageController();
-    //print("Image Page State construct $initPage");
   }
 
   @override
@@ -76,9 +75,17 @@ class ImagePageState extends State<ImagePage> {
       setState(() {
         imageList.clear();
         imageList.addAll(resp.data);
+        hasFetchData = true;
         
         currentPage = initPage;
-        _mPageViewController.jumpToPage(initPage);
+
+//        Future.delayed(Duration(seconds: 1),(){
+//          _mPageViewController.jumpToPage(initPage);
+//        });
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+//          print("addPostFrameCallback ");
+          _mPageViewController.jumpToPage(initPage);
+        });
       });
     }else{
       Navigator.of(context).pop(0);
@@ -88,6 +95,7 @@ class ImagePageState extends State<ImagePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: InkWell(
         onTap: (){
@@ -134,7 +142,7 @@ class ImagePageState extends State<ImagePage> {
 
   Widget _createPageView(BuildContext context){
     //print("_mPageViewController.initialPage = ${_mPageViewController.initialPage}");
-
+    //print("jump to init page $initPage  ,  hasFetchData =  ${hasFetchData}");
     return PreloadPageView.builder(
       itemBuilder: (context , index){
         return _createImageItem(context , imageList[index]);
