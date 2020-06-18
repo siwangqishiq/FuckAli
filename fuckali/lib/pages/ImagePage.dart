@@ -8,6 +8,8 @@ import 'package:preload_page_view/preload_page_view.dart';
 import 'package:image_save/image_save.dart';
 import '../model/Section.dart';
 import '../constants.dart';
+import 'package:dio/dio.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ImagePage extends StatefulWidget {
   final Section section;
@@ -119,15 +121,39 @@ class ImagePageState extends State<ImagePage> {
   }
 
   //保存图片到本地相册
-  void _saveImageToAlbum(BuildContext ctx, ImageItem imageItem) async {
+  Future<bool> _saveImageToAlbum(BuildContext ctx, ImageItem imageItem) async {
+    if (await Permission.storage.request().isGranted) {
+      return false;
+    }
+
+    var saveLocalPermission = await Permission.storage.status;
+    print(saveLocalPermission);
+    if(saveLocalPermission == PermissionStatus.granted){
+
+    }
+
     //Fluttertoast.showToast(msg: "${imageItem.name}");
     //1. download image
+    String downloadFilePath = "./meizitu/meizitu_${DateTime.now().millisecondsSinceEpoch}.jpg";
+    Response resp = await Dio().download(
+      imageItem.url, 
+      downloadFilePath,
+      options:Options(
+        headers:{"Referer":imageItem.refer},
+      ),
+      onReceiveProgress:(int count, int total){
+        print("downloading $count / $total");
+      },
+    );
+  
 
     // 2. save image to ablum
     bool success = await ImageSave.saveImage(null, "jpg" , albumName: "meitu");
     if(success){
       Fluttertoast.showToast(msg: "保存成功");
     }
+
+    return true;
   }
 
   @override
