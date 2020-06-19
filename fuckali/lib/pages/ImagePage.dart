@@ -1,15 +1,22 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:FuckAli/HttpClient.dart';
 import 'package:FuckAli/model/Image.dart';
+import 'package:FuckAli/Strings.dart';
+import 'package:FuckAli/model/Section.dart';
+import 'package:FuckAli/constants.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:image_save/image_save.dart';
-import '../model/Section.dart';
-import '../constants.dart';
+
 import 'package:dio/dio.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ImagePage extends StatefulWidget {
   final Section section;
@@ -122,19 +129,35 @@ class ImagePageState extends State<ImagePage> {
 
   //保存图片到本地相册
   Future<bool> _saveImageToAlbum(BuildContext ctx, ImageItem imageItem) async {
-    if (await Permission.storage.request().isGranted) {
+    Directory dir;
+    try{
+      dir = await getExternalStorageDirectory();
+      if(dir == null){
+        dir = await getApplicationDocumentsDirectory();
+      }
+    }catch(e){
+      Fluttertoast.showToast(msg: PERMISSION_REFUED);
       return false;
     }
 
-    var saveLocalPermission = await Permission.storage.status;
-    print(saveLocalPermission);
-    if(saveLocalPermission == PermissionStatus.granted){
-
+    print("dir = ${dir.path}");
+    if (await Permission.storage.request().isGranted) {
+      //print("给了权限");
+      _doRealSaveLocal(imageItem , dir);
+    }else{
+      Fluttertoast.showToast(msg: PERMISSION_REFUED);
+      return false;
     }
+    return true;
+  }
 
-    //Fluttertoast.showToast(msg: "${imageItem.name}");
+  //
+  void _doRealSaveLocal(ImageItem imageItem , Directory dir) async{
+    //Directory appDocDir = await getApplicationDocumentsDirectory();
+    //Directory dir = await getExternalStorageDirectory();
+    //print(appDocDir.path);
     //1. download image
-    String downloadFilePath = "./meizitu/meizitu_${DateTime.now().millisecondsSinceEpoch}.jpg";
+    String downloadFilePath = "${dir.path}/meizitu/meizitu_${DateTime.now().millisecondsSinceEpoch}.jpg";
     Response resp = await Dio().download(
       imageItem.url, 
       downloadFilePath,
@@ -145,15 +168,21 @@ class ImagePageState extends State<ImagePage> {
         print("downloading $count / $total");
       },
     );
-  
 
-    // 2. save image to ablum
-    bool success = await ImageSave.saveImage(null, "jpg" , albumName: "meitu");
-    if(success){
-      Fluttertoast.showToast(msg: "保存成功");
+    print("${resp.statusCode}");
+
+    if(resp.statusCode == 200){
+      File file = File(downloadFilePath);
+      Uint8List rawData = await file.readAsBytes();
+      
+      //save image to ablum
+      bool success = await ImageSave.saveImage(rawData, "jpg" , albumName: "meitu");
+      if(success){
+        Fluttertoast.showToast(msg: SAVE_SUCCESS);
+      }
+    }else{
+      Fluttertoast.showToast(msg: SAVE_ERROR);
     }
-
-    return true;
   }
 
   @override
