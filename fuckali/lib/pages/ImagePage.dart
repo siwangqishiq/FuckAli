@@ -43,6 +43,9 @@ class ParseImageItemFunc implements ParseDataFunc {
 }
 
 class ImagePageState extends State<ImagePage> {
+  final int MAX_INTEGER = 3000000;
+
+  int startOffset = 1000;
   Section section;
 
   List<ImageItem> imageList = [];
@@ -77,7 +80,7 @@ class ImagePageState extends State<ImagePage> {
       _mPageViewController.dispose();
     }
     super.dispose();
-    print("on Dispose $currentPage");
+    // print("on Dispose $currentPage");
   }
 
   void _fetchImage() async {
@@ -91,12 +94,15 @@ class ImagePageState extends State<ImagePage> {
 
         currentPage = initPage;
 
-//        Future.delayed(Duration(seconds: 1),(){
-//          _mPageViewController.jumpToPage(initPage);
-//        });
+        if(imageList.length > 0){
+          int mid = (MAX_INTEGER ~/ imageList.length) ~/ 2;
+          print("mid = $mid");
+          startOffset = mid * imageList.length;
+        }
+        
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
 //          print("addPostFrameCallback ");
-          _mPageViewController.jumpToPage(initPage);
+          _mPageViewController.jumpToPage(startOffset + initPage);
         });
       });
     } else {
@@ -140,7 +146,7 @@ class ImagePageState extends State<ImagePage> {
       return false;
     }
 
-    print("dir = ${dir.path}");
+    //print("dir = ${dir.path}");
     if (await Permission.storage.request().isGranted) {
       //print("给了权限");
       _doRealSaveLocal(imageItem , dir);
@@ -165,11 +171,11 @@ class ImagePageState extends State<ImagePage> {
         headers:{"Referer":imageItem.refer},
       ),
       onReceiveProgress:(int count, int total){
-        print("downloading $count / $total");
+        //print("downloading $count / $total");
       },
     );
 
-    print("${resp.statusCode}");
+    //print("${resp.statusCode}");
 
     if(resp.statusCode == 200){
       File file = File(downloadFilePath);
@@ -189,17 +195,18 @@ class ImagePageState extends State<ImagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: WillPopScope(
-        onWillPop: (){
+        onWillPop: () async {
           //print("on back pressed");
-          Navigator.of(context).pop(currentPage);
+          Navigator.of(context).pop(currentPage % imageList.length);
+          return true;
         },
         child: InkWell(
           onTap: () {
-            Navigator.of(context).pop(currentPage);
+            Navigator.of(context).pop(currentPage % imageList.length);
           },
           onLongPress: () {
             //print("on long press ");
-            _displayMenu(context, imageList[currentPage]);
+            _displayMenu(context, imageList[currentPage % imageList.length]);
           },
           child: Container(
             width: double.infinity,
@@ -239,14 +246,15 @@ class ImagePageState extends State<ImagePage> {
     //print("jump to init page $initPage  ,  hasFetchData =  ${hasFetchData}");
     return PreloadPageView.builder(
       itemBuilder: (context, index) {
-        return _createImageItem(context, imageList[index]);
+        return _createImageItem(context, imageList[index % imageList.length]);
       },
-      itemCount: imageList.length,
+      //itemCount: imageList.length,
+      itemCount: imageList.length == 0?0:MAX_INTEGER,
       scrollDirection: Axis.horizontal,
       preloadPagesCount: 3,
       onPageChanged: (index) {
         setState(() {
-          currentPage = index;
+          currentPage = index % imageList.length;
         });
       },
       controller: _mPageViewController,
