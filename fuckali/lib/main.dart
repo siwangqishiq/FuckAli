@@ -204,18 +204,20 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (section == null) 
       return;
 
-//    print("click card sectionId = ${section.sid}");
+   print("click card sectionId = ${section.sid}");
     int initIndex = 0;
     if(sectionLastVisitedIndex[section.sid] != null){
       initIndex = sectionLastVisitedIndex[section.sid];
     }
+
+    print("=========================================");
 
     final result = await Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ImagePage(section , initIndex),
     ));
 
     sectionLastVisitedIndex[section.sid] = result;
-    print("back from ImagePage ${section.sid} => $result");
+    print("back from ImagePage ${section.sid} =>");
     //SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
   }
 

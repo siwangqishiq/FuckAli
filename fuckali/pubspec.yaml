@@ -24,12 +24,9 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^3.0.9
-  #cached_network_image: "^2.2.0"
-  #pinch_zoom_image: "^0.2.5"
-  #json_serializable: ^3.3.0
   photo_view: ^0.9.2
-  fluttertoast: ^4.0.0
-  preload_page_view: ^0.1.4
+  fluttertoast: ^8.0.8
+  preload_page_view: ^0.1.6
   image_save: ^3.1.1
   permission_handler: ^5.0.1
   path_provider: ^1.6.11

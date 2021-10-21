@@ -56,6 +56,7 @@ class ImagePageState extends State<ImagePage> {
 
   ImagePageState(Section sec, int init) {
     this.section = sec;
+    print("sectionvvvvvvvv ${section}");
     this.currentPage = 0;
     this.initPage = init;
     _mPageViewController = PreloadPageController();
@@ -93,7 +94,7 @@ class ImagePageState extends State<ImagePage> {
         hasFetchData = true;
 
         currentPage = initPage;
-
+        //print("imagelist size = ${imageList.length}");
         if(imageList.length > 0){
           int mid = (MAX_INTEGER ~/ imageList.length) ~/ 2;
           print("mid = $mid");
